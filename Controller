@@ -19,6 +19,8 @@ public class Controller {
     Pane root_pane;
     @FXML
     AnchorPane Constructor;
+    
+     Label currentComp = null;
 
 
     private Image LIand = new Image(getClass().getResourceAsStream("./and.gif"));
@@ -41,15 +43,32 @@ public class Controller {
         OR.setGraphic(new ImageView(LIor));
         palette.getChildren().add(OR);
 
-        DragDrop(AND, LIand);
-
-        DragDrop(OR, LIor);
+        SelectComp(AND);
+        SelectComp(OR);
 
 
 
     }
+    
+     public void SelectComp(Label COMP) {
+        COMP.setOnMousePressed(new EventHandler<MouseEvent>() {
+            @Override
+            public void handle(MouseEvent event) {
+                System.out.println("mouse click detected! " + event.getSource());
 
-    public synchronized void DragDrop (Label COMP, Image IMG){
+                if (currentComp == null) {
+                    currentComp = COMP;
+                    if (COMP == AND) {
+                        DragDrop(AND, LIand);
+                    } else if (COMP == OR) {
+                        DragDrop(OR, LIor);
+                    }
+                }
+            }
+        });
+    }
+
+    public void DragDrop (Label COMP, Image IMG){
 
 
         COMP.setOnDragDetected(new EventHandler<MouseEvent>() {
@@ -77,10 +96,11 @@ public class Controller {
 
                 if (event.getGestureSource() != Stack &&
                         event.getDragboard().hasImage()) {
-                    event.acceptTransferModes(TransferMode.COPY_OR_MOVE);
+                    event.acceptTransferModes(TransferMode.MOVE);
+                }else {
+                    event.consume();
                 }
-                event.consume();
-            }
+             }
         });
 
         Stack.setOnDragEntered(new EventHandler <DragEvent>() {
@@ -127,7 +147,8 @@ public class Controller {
 
         COMP.setOnDragDone(new EventHandler <DragEvent>() {
             public void handle(DragEvent event) {
-
+            
+                currentComp = null;
                 System.out.println("onDragDone");
 
 
