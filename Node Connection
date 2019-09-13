@@ -1,0 +1,275 @@
+package sample2;
+
+
+import OtraShit.CubicCurve;
+import OtraShit.MyCubicCurve;
+import javafx.beans.property.DoubleProperty;
+import javafx.beans.property.SimpleDoubleProperty;
+import javafx.event.ActionEvent;
+import javafx.event.EventHandler;
+import javafx.fxml.FXML;
+import javafx.scene.control.Label;
+import javafx.scene.image.Image;
+import javafx.scene.image.ImageView;
+import javafx.scene.input.*;
+import javafx.scene.layout.AnchorPane;
+import javafx.scene.layout.Pane;
+import javafx.scene.layout.StackPane;
+import javafx.scene.layout.VBox;
+import javafx.scene.paint.Color;
+import javafx.scene.shape.Line;
+import javafx.application.Application;
+import javafx.beans.property.*;
+import javafx.event.EventHandler;
+import javafx.scene.*;
+import javafx.scene.input.MouseEvent;
+import javafx.scene.paint.Color;
+import javafx.scene.shape.*;
+import javafx.stage.Stage;
+import sample.Controller;
+
+public class Controller2 {
+    @FXML
+    VBox palette;
+    @FXML
+    StackPane Stack;
+    @FXML
+    Pane root_pane;
+    @FXML
+    AnchorPane Constructor;
+
+    Label currentComp = null;
+
+    Line line = new Line();
+
+
+    private Image LIand = new Image(getClass().getResourceAsStream("./and.gif"));
+    private Image LIor = new Image(getClass().getResourceAsStream("./or.png"));
+
+    private Label AND = new Label();
+    private Label OR = new Label();
+
+    public void boton(ActionEvent event) {
+        System.out.println("in");
+
+    }
+
+
+
+    public void addImage() {
+
+        AND.setGraphic(new ImageView(LIand));  //LI = Label Image
+        palette.getChildren().add(AND);
+        OR.setGraphic(new ImageView(LIor));
+        palette.getChildren().add(OR);
+
+        SelectComp(AND);
+        SelectComp(OR);
+
+    }
+
+    public void SelectComp(Label COMP) {
+        COMP.setOnMousePressed(new EventHandler<MouseEvent>() {
+            @Override
+            public void handle(MouseEvent event) {
+                System.out.println("mouse click detected! " + event.getSource());
+
+                if (currentComp == null) {
+                    currentComp = COMP;
+                    if (COMP == AND) {
+                        DragDrop(AND, LIand);
+                    } else if (COMP == OR) {
+                        DragDrop(OR, LIor);
+                    }
+                }
+            }
+        });
+    }
+
+
+    public void DragDrop(Label COMP, Image IMG) {
+
+        COMP.setOnDragDetected(new EventHandler<MouseEvent>() {
+            @Override
+
+            public void handle(MouseEvent event) {
+                System.out.println("onDragDetected");
+                Dragboard db = COMP.startDragAndDrop(TransferMode.ANY);
+                COMP.startDragAndDrop(TransferMode.ANY);
+
+
+                ClipboardContent content = new ClipboardContent();
+                content.putImage(IMG);
+                db.setContent(content);
+                event.consume();
+
+            }
+
+        });
+
+        Stack.setOnDragOver(new EventHandler<DragEvent>() {
+            public void handle(DragEvent event) {
+                System.out.println("onDragOver");
+
+                if (event.getGestureSource() != Stack &&
+                        event.getDragboard().hasImage()) {
+                    event.acceptTransferModes(TransferMode.MOVE);
+                } else {
+                    event.consume();
+                }
+
+            }
+
+        });
+
+
+        Stack.setOnDragEntered(new EventHandler<DragEvent>() {
+            public void handle(DragEvent event) {
+                System.out.println("onDragEntered");
+                if (event.getGestureSource() != Stack &&
+                        event.getDragboard().hasImage()) {
+                }
+                event.consume();
+            }
+        });
+
+
+        Stack.setOnDragExited(new EventHandler<DragEvent>() {
+            public void handle(DragEvent event) {
+                System.out.println("onDragExited");
+
+                if (event.getTarget() instanceof StackPane) {
+
+                    Label source = (Label) event.getGestureSource();
+                    Label toAdd = new Label();
+                    toAdd.setGraphic(new ImageView(IMG));
+
+                    toAdd.setTranslateX(event.getX());
+                    toAdd.setTranslateY(event.getY());
+                    Constructor.getChildren().add(toAdd);
+
+                    toAdd.setGraphic(new ImageView(IMG));
+
+                    DoubleProperty startX = new SimpleDoubleProperty(event.getX());
+                    DoubleProperty startY = new SimpleDoubleProperty(event.getY());
+                    DoubleProperty endX = new SimpleDoubleProperty(event.getX());
+                    DoubleProperty endY = new SimpleDoubleProperty(event.getY());
+
+
+
+                    Controller2.Anchor start = new Controller2.Anchor(Color.PALEGREEN, startX, startY);
+                    Controller2.Anchor end  = new Controller2.Anchor(Color.TOMATO, endX, endY);
+
+                    Constructor.getChildren().add(start);
+                    Constructor.getChildren().add(end);
+
+                    Line line = new Controller2.BoundLine(startX, startY, endX, endY, toAdd);
+
+                    Constructor.getChildren().add(line);
+
+
+                }
+                event.consume();
+
+            }
+
+        });
+
+        COMP.setOnDragDone(new EventHandler<DragEvent>() {
+
+            public void handle(DragEvent event) {
+                currentComp = null;
+                System.out.println("onDragDone");
+
+                event.consume();
+
+            }
+        });
+
+    }
+
+    class BoundLine extends Line {
+        BoundLine(DoubleProperty startX, DoubleProperty startY, DoubleProperty endX, DoubleProperty endY, Label toAdd) {
+            startXProperty().bind(startX);
+            startYProperty().bind(startY);
+            endXProperty().bind(endX);
+            endYProperty().bind(endY);
+            setStrokeWidth(2);
+            setStroke(Color.GRAY.deriveColor(0, 1, 1, 0.5));
+            setStrokeLineCap(StrokeLineCap.BUTT);
+            getStrokeDashArray().setAll(10.0, 5.0);
+            setMouseTransparent(true);
+
+
+
+
+        }
+
+
+    }
+
+    // a draggable anchor displayed around a point.
+    class Anchor extends Circle {
+        Anchor(Color color, DoubleProperty x, DoubleProperty y) {
+            super(x.get(), y.get(), 10);
+            setFill(color.deriveColor(1, 1, 1, 0.5));
+            setStroke(color);
+            setStrokeWidth(2);
+            setStrokeType(StrokeType.OUTSIDE);
+
+            x.bind(centerXProperty());
+            y.bind(centerYProperty());
+            enableDrag();
+        }
+
+        // make a node movable by dragging it around with the mouse.
+        private void enableDrag() {
+            final Controller2.Anchor.Delta dragDelta = new Controller2.Anchor.Delta();
+            setOnMousePressed(new EventHandler<MouseEvent>() {
+                @Override public void handle(MouseEvent mouseEvent) {
+                    // record a delta distance for the drag and drop operation.
+                    dragDelta.x = getCenterX() - mouseEvent.getX();
+                    dragDelta.y = getCenterY() - mouseEvent.getY();
+                    getScene().setCursor(Cursor.MOVE);
+                }
+            });
+            setOnMouseReleased(new EventHandler<MouseEvent>() {
+                @Override public void handle(MouseEvent mouseEvent) {
+                    getScene().setCursor(Cursor.HAND);
+                }
+            });
+            setOnMouseDragged(new EventHandler<MouseEvent>() {
+                @Override public void handle(MouseEvent mouseEvent) {
+                    double newX = mouseEvent.getX() + dragDelta.x;
+                    if (newX > 0 && newX < getScene().getWidth()) {
+                        setCenterX(newX);
+                    }
+                    double newY = mouseEvent.getY() + dragDelta.y;
+                    if (newY > 0 && newY < getScene().getHeight()) {
+                        setCenterY(newY);
+                    }
+                }
+            });
+            setOnMouseEntered(new EventHandler<MouseEvent>() {
+                @Override public void handle(MouseEvent mouseEvent) {
+                    if (!mouseEvent.isPrimaryButtonDown()) {
+                        getScene().setCursor(Cursor.HAND);
+                    }
+                }
+            });
+            setOnMouseExited(new EventHandler<MouseEvent>() {
+                @Override public void handle(MouseEvent mouseEvent) {
+                    if (!mouseEvent.isPrimaryButtonDown()) {
+                        getScene().setCursor(Cursor.DEFAULT);
+                    }
+                }
+            });
+        }
+
+        // records relative x and y co-ordinates.
+        private class Delta { double x, y; }
+    }
+
+
+    }
+
