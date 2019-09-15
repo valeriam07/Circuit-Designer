@@ -1,0 +1,16 @@
+package sample2;
+
+import javafx.scene.control.Label;
+import javafx.scene.shape.Circle;
+
+
+public class Compuerta extends Label {
+    private Controller2.Anchor circulo;
+
+     public void setCirculo(Controller2.Anchor circulo){
+         this.circulo = circulo;
+         circulo.setMicompuerta(this);    //this es la compuerta
+
+     }
+
+}
