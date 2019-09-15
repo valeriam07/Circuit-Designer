@@ -48,6 +48,8 @@ public class Controller2 {
 
     private Label AND = new Label();
     private Label OR = new Label();
+    
+    Compuerta micompuerta;
 
     public void boton(ActionEvent event) {
         System.out.println("in");
@@ -138,7 +140,7 @@ public class Controller2 {
             public void handle(DragEvent event) {
                 System.out.println("onDragExited");
 
-                if (event.getTarget() instanceof StackPane) {
+                if (event.getPickResult().getIntersectedNode() instanceof StackPane) {
 
                     Label source = (Label) event.getGestureSource();
                     Label toAdd = new Label();
@@ -160,6 +162,8 @@ public class Controller2 {
                     Controller2.Anchor start = new Controller2.Anchor(Color.PALEGREEN, startX, startY);
                     Controller2.Anchor end  = new Controller2.Anchor(Color.TOMATO, endX, endY);
 
+                    toAdd.setCirculo(start);
+                    
                     Constructor.getChildren().add(start);
                     Constructor.getChildren().add(end);
 
@@ -210,6 +214,13 @@ public class Controller2 {
 
     // a draggable anchor displayed around a point.
     class Anchor extends Circle {
+    
+     public void setMicompuerta(Compuerta compuerta)
+        {
+            micompuerta = compuerta;
+        }
+
+   
         Anchor(Color color, DoubleProperty x, DoubleProperty y) {
             super(x.get(), y.get(), 10);
             setFill(color.deriveColor(1, 1, 1, 0.5));
@@ -219,10 +230,15 @@ public class Controller2 {
 
             x.bind(centerXProperty());
             y.bind(centerYProperty());
-            enableDrag();
+            
+            if (color == Color.PALEGREEN){         //para que el inicio de la linea permanezca en el label
+
+            }else {
+                enableDrag();
+            }
+          
         }
 
-        // make a node movable by dragging it around with the mouse.
         private void enableDrag() {
             final Controller2.Anchor.Delta dragDelta = new Controller2.Anchor.Delta();
             setOnMousePressed(new EventHandler<MouseEvent>() {
@@ -236,6 +252,17 @@ public class Controller2 {
             setOnMouseReleased(new EventHandler<MouseEvent>() {
                 @Override public void handle(MouseEvent mouseEvent) {
                     getScene().setCursor(Cursor.HAND);
+                    
+                     if (mouseEvent.getPickResult().getIntersectedNode() instanceof Controller2.Anchor ){
+
+                        System.out.println("hay una compuerta");
+
+                        if (mouseEvent.getPickResult().getIntersectedNode() == AND){
+                            System.out.println("se conecta a un AND");
+                        }
+
+
+                    }
                 }
             });
             setOnMouseDragged(new EventHandler<MouseEvent>() {
