@@ -1,5 +1,8 @@
 package sample2;
 
+import javafx.beans.property.SimpleIntegerProperty;
+import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
 import javafx.fxml.FXMLLoader;
 import javafx.geometry.Insets;
 import javafx.scene.Group;
@@ -8,41 +11,40 @@ import javafx.scene.Scene;
 import javafx.scene.control.Label;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
+import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.layout.AnchorPane;
-import javafx.scene.layout.Pane;
 import javafx.scene.layout.VBox;
 import javafx.scene.paint.Paint;
 import javafx.scene.text.Font;
-import javafx.scene.text.TextAlignment;
 import javafx.stage.Stage;
 import sample2.ListasEnlazadas.Lista;
-import sample2.ListasEnlazadas.Nodo;
 
 import java.io.IOException;
 
 public class TablaVerdad {
 
+
+    TableView<Dato> TablaVerdad  = new TableView();
+
     static Lista inList = new Lista();
+
     int VALOR;
 
     VBox tableBase = new VBox();
 
+    static ObservableList<Dato> a = FXCollections.observableArrayList(
+
+
+    );
+
     public void addIN(int valor){
-        System.out.println("TABLA DE VERDAD");
+        //System.out.println("TABLA DE VERDAD");
         VALOR = valor;
         inList.addLast(valor);
-    }
-    public int getIN(){
-        return VALOR;
+        a.add(new Dato(valor));
     }
 
     public void CreateTable() throws IOException {
-        Parent root = new AnchorPane();
-
-        FXMLLoader fxmlLoader = new FXMLLoader();
-        fxmlLoader.setLocation(getClass().getResource("./TablaVerdad.fxml"));
-        fxmlLoader.setRoot(root);
-        fxmlLoader.load();
 
         Scene scene = new Scene(new Group());
         Stage primaryStage = new Stage();
@@ -50,34 +52,42 @@ public class TablaVerdad {
         primaryStage.setTitle("Tabla de Verdad");
         primaryStage.setHeight(600);
 
+        TablaVerdad.setEditable(true);
 
-        TableView TablaVerdad  = new TableView();
+        TableColumn firstCol =new TableColumn("ENTRADAS");
+        firstCol.setCellValueFactory(
+                new PropertyValueFactory<Dato, Integer>("VALOR")
+        );
+
+
         Label title = new Label("Tabla de Verdad");
         title.setFont(new Font("Bold Italic", 21));
         title.setTextFill(Paint.valueOf("#00eeff"));
-        //title.setTextAlignment(TextAlignment.RIGHT);
 
-        tableBase.setPadding(new Insets(10, 0, 0, 10));
+        //tableBase.setPadding(new Insets(10, 0, 0, 10));
 
-        TableColumn firstCol =new TableColumn("ENTRADAS");
-        TablaVerdad.getColumns().setAll(firstCol);
-        tableBase.getChildren().add(title);
-        tableBase.getChildren().add(TablaVerdad);
-
-
-
+        TablaVerdad.setItems(a);
+        TablaVerdad.getColumns().addAll(firstCol);
+        tableBase.getChildren().addAll(title, TablaVerdad);
 
 
         ((Group) scene.getRoot()).getChildren().addAll(tableBase);
-
-        System.out.println(tableBase);
 
         primaryStage.setScene(scene);
         primaryStage.show();
 
 
-
-
-
     }
+
+    public static class Dato {
+        private final SimpleIntegerProperty VALOR;
+
+        public Dato(int In) {
+            this.VALOR = new SimpleIntegerProperty(In);
+        }
+        public int getVALOR(){
+            return VALOR.get();
+        }
+    }
+
 }
