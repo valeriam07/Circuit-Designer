@@ -7,9 +7,7 @@ import javafx.event.EventHandler;
 import javafx.scene.Cursor;
 import javafx.scene.Node;
 import javafx.scene.control.Button;
-import javafx.scene.control.Label;
 import javafx.scene.input.*;
-import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.Pane;
 import javafx.scene.layout.StackPane;
 import javafx.scene.paint.Color;
@@ -17,10 +15,17 @@ import javafx.scene.shape.Circle;
 import javafx.scene.shape.Line;
 import javafx.scene.shape.StrokeLineCap;
 import javafx.scene.shape.StrokeType;
+import sample2.ListasEnlazadas.Lista;
+import sample2.Logica.*;
 
 public class DragDropButton extends Controller2 {
-
-    int VALOR;
+         //se crea una nueva lista para los valores de entrada
+    Lista ListaAND = new Lista();
+    Lista ListaOR = new Lista();
+    Lista ListaNOR = new Lista();
+    Lista ListaXOR = new Lista();
+    Lista ListaNAND = new Lista();
+    Lista ListaXNOR = new Lista();
 
 
     public void MoveButton(Button SetValue, StackPane Stack, Pane Constructor) {
@@ -84,31 +89,33 @@ public class DragDropButton extends Controller2 {
                     Constructor.getChildren().add(toAdd);
 
 
-
-                    DoubleProperty startX = new SimpleDoubleProperty(event.getX() +20);
+                    DoubleProperty startX = new SimpleDoubleProperty(event.getX() + 20);
                     DoubleProperty startY = new SimpleDoubleProperty(event.getY() + 14);
-                    DoubleProperty endX = new SimpleDoubleProperty(event.getX()+ 20);
+                    DoubleProperty endX = new SimpleDoubleProperty(event.getX() + 20);
                     DoubleProperty endY = new SimpleDoubleProperty(event.getY() + 14);
+
+
+                    //_____________________________/ BUTTON ACTION /_________________________________
 
                     toAdd.setOnAction(new EventHandler<ActionEvent>() {
                         @Override
                         public void handle(ActionEvent event) {
-                            System.out.println(toAdd.getText());
 
                             if (toAdd.getText().equals("0")) {
-                                VALOR = 1;
                                 toAdd.setText("1");
+                                VALOR = 1;
                             } else if (toAdd.getText().equals("1")) {
-                                VALOR = 0;
                                 toAdd.setText("0");
+                                VALOR = 0;
                             }
 
                         }
                     });
 
 
+
                     DragDropButton.Anchor start = new DragDropButton.Anchor(Color.PALEGREEN, startX, startY, toAdd);
-                    DragDropButton.Anchor end  = new DragDropButton.Anchor(Color.TOMATO, endX, endY, toAdd);
+                    DragDropButton.Anchor end = new DragDropButton.Anchor(Color.TOMATO, endX, endY, toAdd);
 
                     //start.setId(SetValue.getId());
                     //end.setId(SetValue.getId());
@@ -182,9 +189,9 @@ public class DragDropButton extends Controller2 {
 
             x.bind(centerXProperty());
             y.bind(centerYProperty());
-            if (color == Color.PALEGREEN){
+            if (color == Color.PALEGREEN) {
 
-            }else {
+            } else {
                 enableDrag(toAdd);
             }
         }
@@ -194,7 +201,8 @@ public class DragDropButton extends Controller2 {
         private void enableDrag(Button toAdd) {
             final DragDropButton.Anchor.Delta dragDelta = new DragDropButton.Anchor.Delta();
             setOnMousePressed(new EventHandler<MouseEvent>() {
-                @Override public void handle(MouseEvent mouseEvent) {
+                @Override
+                public void handle(MouseEvent mouseEvent) {
 
 
                     dragDelta.x = getCenterX() - mouseEvent.getX();
@@ -203,17 +211,20 @@ public class DragDropButton extends Controller2 {
                 }
             });
             setOnMouseReleased(new EventHandler<MouseEvent>() {
-                @Override public void handle(MouseEvent mouseEvent) {
+                @Override
+                public void handle(MouseEvent mouseEvent) {
                     getScene().setCursor(Cursor.HAND);
-                    System.out.println("connected");
-                    System.out.println(mouseEvent);
+                    sendIN(toAdd.getText());
 
 
-                    }
+
+
+                }
 
             });
             setOnMouseDragged(new EventHandler<MouseEvent>() {
-                @Override public void handle (MouseEvent mouseEvent){
+                @Override
+                public void handle(MouseEvent mouseEvent) {
                     double newX = mouseEvent.getX() + dragDelta.x;
                     if (newX > 0 && newX < getScene().getWidth()) {
                         setCenterX(newX);
@@ -223,42 +234,150 @@ public class DragDropButton extends Controller2 {
                         setCenterY(newY);
                     }
 
-            }
+                }
             });
             setOnMouseEntered(new EventHandler<MouseEvent>() {
-                @Override public void handle(MouseEvent mouseEvent) {
+                @Override
+                public void handle(MouseEvent mouseEvent) {
                     if (!mouseEvent.isPrimaryButtonDown()) {
                         getScene().setCursor(Cursor.HAND);
                     }
                 }
             });
             setOnMouseExited(new EventHandler<MouseEvent>() {
-                @Override public void handle(MouseEvent mouseEvent) {
+                @Override
+                public void handle(MouseEvent mouseEvent) {
                     if (!mouseEvent.isPrimaryButtonDown()) {
                         getScene().setCursor(Cursor.DEFAULT);
 
-                    }if (mouseEvent.getPickResult().getIntersectedNode() instanceof Controller2.Anchor) {
+                    }
+                    System.out.println(VALOR);
+                    sendOp(mouseEvent.getPickResult().getIntersectedNode(), VALOR, toAdd);
 
-                        Node CompLabel = (mouseEvent.getPickResult().getIntersectedNode());
-                        System.out.println(CompLabel.getId());
 
-                        if (CompLabel == null){
-                            System.out.println("no hay conexion");
 
-                        } else if (CompLabel.getId().equals("AND")) {
-                            System.out.println("se conecta a un AND");
 
-                        }
+                }
 
+            });
+
+
+
+
+
+        }
+
+
+        private class Delta {
+            double x, y;
+        }
+
+//_________________________________/ SELECCIONAR OPERACION /__________________________
+
+        public void sendOp(Node IntersectedNode, int VALOR, Button toAdd) {
+
+
+            if (IntersectedNode instanceof Controller2.Anchor) {
+                toAdd.setDisable(true);
+
+
+                Node CompLabel = (IntersectedNode);
+                System.out.println(CompLabel.getId());
+
+                if (CompLabel == null) {
+                    System.out.println("no hay conexion");
+
+                }
+
+
+                else if (CompLabel.getId().equals("AND")) {
+                    System.out.println("se conecta a un AND");
+
+                    ListaAND.addLast(VALOR);
+                    if (ListaAND.size() == 2) {
+                        System.out.println("entradas" + ListaAND.getIn1() + ListaAND.getIn2());
+                        OpAND a = new OpAND();
+                        Controller2.VALOR = a.operar(ListaAND.getIn1(), ListaAND.getIn2());
+                        ListaAND = null;
+
+                    }
+                } else if (CompLabel.getId().equals("OR")) {
+                    System.out.println("se conecta a un OR");
+
+                    ListaOR.addLast(VALOR);
+                    if (ListaOR.size() == 2) {
+                        System.out.println("entradas" + ListaOR.getIn1() + ListaOR.getIn2());
+                        OpOR a = new OpOR();
+                        a.operar(ListaOR.getIn1(), ListaOR.getIn2());
+                        ListaOR = null;
+                    }
+                } else if (CompLabel.getId().equals("NOT")) {
+                    System.out.println("se conecta a un NOT");
+
+                    System.out.println("entrada" + VALOR);
+                    OpNOT a = new OpNOT();
+                    a.operar(VALOR);
+
+                } else if (CompLabel.getId().equals("NAND")) {
+                    System.out.println("se conecta a un NAND");
+
+                    ListaNAND.addLast(VALOR);
+                    if (ListaNAND.size() == 2) {
+                        System.out.println("entradas" + ListaNAND.getIn1() + ListaNAND.getIn2());
+                        OpNAND a = new OpNAND();
+                        a.operar(ListaNAND.getIn1(), ListaNAND.getIn2());
+                        ListaNAND = null;
+                    }
+                } else if (CompLabel.getId().equals("NOR")) {
+                    System.out.println("se conecta a un NOR");
+
+                    ListaNOR.addLast(VALOR);
+                    if (ListaNOR.size() == 2) {
+                        System.out.println("entradas" + ListaNOR.getIn1() + ListaNOR.getIn2());
+                        OpNOR a = new OpNOR();
+                        a.operar(ListaNOR.getIn1(), ListaNOR.getIn2());
+                        ListaNOR = null;
+                    }
+                } else if (CompLabel.getId().equals("XOR")) {
+                    System.out.println("se conecta a un XOR");
+
+                    ListaXOR.addLast(VALOR);
+                    if (ListaXOR.size() == 2) {
+                        System.out.println("entradas" + ListaXOR.getIn1() + ListaXOR.getIn2());
+                        OpXOR a = new OpXOR();
+                        a.operar(ListaXOR.getIn1(), ListaXOR.getIn2());
+                        ListaXOR = null;
+                    }
+                } else if (CompLabel.getId().equals("XNOR")) {
+                    System.out.println("se conecta a un XNOR");
+
+                    ListaXNOR.addLast(VALOR);
+                    if (ListaXNOR.size() == 2) {
+                        System.out.println("entradas" + ListaXNOR.getIn1() + ListaXNOR.getIn2());
+                        OpXNOR a = new OpXNOR();
+                        a.operar(ListaXNOR.getIn1(), ListaXNOR.getIn2());
+                        ListaXNOR = null;
 
                     }
                 }
-            });
+            }
+
+
         }
 
-        public class Delta { double x, y; }
+        public int getVALOR(){
+            return VALOR;
+        }
+
+        public void sendIN(String valor){
+            TablaVerdad IN = new TablaVerdad();
+
+            if(valor.equals("1")){
+                IN.addIN(1);
+            }else{
+                IN.addIN(0);
+            }
+        }
     }
-
-
 }
 
