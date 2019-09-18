@@ -6,9 +6,13 @@ import javafx.beans.property.SimpleDoubleProperty;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.fxml.FXML;
+import javafx.fxml.FXMLLoader;
 import javafx.scene.Cursor;
+import javafx.scene.Node;
+import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
+import javafx.scene.control.TableView;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.input.*;
@@ -21,10 +25,15 @@ import javafx.scene.shape.Circle;
 import javafx.scene.shape.Line;
 import javafx.scene.shape.StrokeLineCap;
 import javafx.scene.shape.StrokeType;
+import javafx.stage.Stage;
+import sample2.ListasEnlazadas.Lista;
+import sample2.Logica.*;
 
+import java.io.IOException;
 
 
 public class Controller2 {
+    public static int VALOR;
     @FXML
     VBox palette;
     @FXML
@@ -33,10 +42,23 @@ public class Controller2 {
     Pane root_pane;
     @FXML
     AnchorPane Constructor;
+    @FXML
+    AnchorPane BasePane;
+    @FXML
+    //VBox tableBase;
 
     Label currentComp = null;
 
     Line line = new Line();
+
+    //int VALOR;
+
+    Lista ListaAND = new Lista();      //se crea una nueva lista para los valores de entrada
+    Lista ListaOR = new Lista();
+    Lista ListaNOR = new Lista();
+    Lista ListaXOR = new Lista();
+    Lista ListaNAND = new Lista();
+    Lista ListaXNOR = new Lista();
 
 
     private Image LIand = new Image(getClass().getResourceAsStream("./IMAGES/AND.png"));
@@ -59,8 +81,12 @@ public class Controller2 {
 
 //_________________________________/ SIMULATE BUTTON /__________________________
 
-    public void boton(ActionEvent event) {
+    public void boton(ActionEvent event) throws IOException {
         System.out.println("in");
+        //BasePane.getChildren().add(tableBase);
+        TablaVerdad B = new TablaVerdad();
+        B.CreateTable();
+        //Controller2 and = (Controller2) fxmlLoader.getController();
 
     }
 
@@ -74,8 +100,6 @@ public class Controller2 {
         SetValue.setText("Entry");
         //SetValue.setStyle("-fx-text-fill: #ECECEC");
         SetValue.setStyle("-fx-background-color: #23BAC4");
-
-
 
 
         AND.setGraphic(new ImageView(LIand));  //LI = Label Image
@@ -107,7 +131,6 @@ public class Controller2 {
         XNOR.setId("XNOR");
 
 
-
         SelectComp(AND);
         SelectComp(OR);
         SelectComp(NOT);
@@ -137,19 +160,19 @@ public class Controller2 {
                     } else if (COMP == OR) {
                         DragDrop(OR, LIor);
 
-                    }else if (COMP == NOT) {
+                    } else if (COMP == NOT) {
                         DragDrop(NOT, LInot);
 
-                    }else if (COMP == NAND) {
+                    } else if (COMP == NAND) {
                         DragDrop(NAND, LInand);
 
-                    }else if (COMP == NOR) {
+                    } else if (COMP == NOR) {
                         DragDrop(NOR, LInor);
 
-                    }else if (COMP == XOR) {
+                    } else if (COMP == XOR) {
                         DragDrop(XOR, LIxor);
 
-                    }else if (COMP == XNOR) {
+                    } else if (COMP == XNOR) {
                         DragDrop(XNOR, LIxnor);
                     }
                 }
@@ -221,17 +244,31 @@ public class Controller2 {
                     Constructor.getChildren().add(toAdd);
 
 
-
-
                     DoubleProperty startX = new SimpleDoubleProperty(event.getX());
-                    DoubleProperty startY = new SimpleDoubleProperty(event.getY()+10);
+                    DoubleProperty startY = new SimpleDoubleProperty(event.getY() + 15);
                     DoubleProperty endX = new SimpleDoubleProperty(event.getX());
-                    DoubleProperty endY = new SimpleDoubleProperty(event.getY()+10);
+                    DoubleProperty endY = new SimpleDoubleProperty(event.getY() + 15);
+
+                    DoubleProperty startX_2 = new SimpleDoubleProperty(event.getX());
+                    DoubleProperty startY_2 = new SimpleDoubleProperty(event.getY() + 35);
+                    DoubleProperty endX_2 = new SimpleDoubleProperty(event.getX());
+                    DoubleProperty endY_2 = new SimpleDoubleProperty(event.getY() + 35);
+
+                    DoubleProperty startX_OUT = new SimpleDoubleProperty(event.getX() + 100);
+                    DoubleProperty startY_OUT = new SimpleDoubleProperty(event.getY() + 25);
+                    DoubleProperty endX_OUT = new SimpleDoubleProperty(event.getX() + 100);
+                    DoubleProperty endY_OUT = new SimpleDoubleProperty(event.getY() + 25);
 
 
+                    Controller2.Anchor start_IN1 = new Controller2.Anchor(Color.PALEGREEN, startX, startY, toAdd, COMP.getId(), null);
+                    Controller2.Anchor end_IN1 = new Controller2.Anchor(Color.TOMATO, endX, endY, toAdd, COMP.getId(),null);
 
-                    Controller2.Anchor start = new Controller2.Anchor(Color.PALEGREEN, startX, startY, toAdd, COMP.getId());
-                    Controller2.Anchor end  = new Controller2.Anchor(Color.TOMATO, endX, endY, toAdd, COMP.getId());
+                    Controller2.Anchor start_IN2 = new Controller2.Anchor(Color.PALEGREEN, startX_2, startY_2, toAdd, COMP.getId(),null);
+                    Controller2.Anchor end_IN2 = new Controller2.Anchor(Color.TOMATO, endX_2, endY_2, toAdd, COMP.getId(),null);
+
+                    Controller2.Anchor start_OUT = new Controller2.Anchor(Color.PALEGREEN, startX_OUT, startY_OUT, toAdd, COMP.getId(), null);
+                    Controller2.Anchor end_OUT = new Controller2.Anchor(Color.TOMATO, endX_OUT, endY_OUT, toAdd, COMP.getId(), "OUT");
+
 
                     //start.setId(COMP.getId());
                     //end.setId(COMP.getId());
@@ -240,16 +277,31 @@ public class Controller2 {
                     System.out.println("ID " + toAdd.getId());
 
 
-                    Constructor.getChildren().add(start);
-                    Constructor.getChildren().add(end);
+                    Constructor.getChildren().add(start_IN1);
+                    Constructor.getChildren().add(end_IN1);
+
+                    Constructor.getChildren().add(start_IN2);
+                    Constructor.getChildren().add(end_IN2);
+
+                    Constructor.getChildren().add(start_OUT);
+                    Constructor.getChildren().add(end_OUT);
+
+                    end_OUT.setId("OUT");
 
                     Line line = new Controller2.BoundLine(startX, startY, endX, endY, toAdd);
+                    Line line2 = new Controller2.BoundLine(startX_2, startY_2, endX_2, endY_2, toAdd);
+                    Line lineOUT = new Controller2.BoundLine(startX_OUT, startY_OUT, endX_OUT, endY_2, toAdd);
 
-                    start.toFront();            //Mover al frente la linea
-                    end.toFront();
+                    //start.toFront();            //Mover al frente la linea
+                    //end.toFront();
                     line.toFront();
 
                     Constructor.getChildren().add(line);
+                    Constructor.getChildren().add(line2);
+                    Constructor.getChildren().add(lineOUT);
+
+
+
 
 
                 }
@@ -266,7 +318,6 @@ public class Controller2 {
                 System.out.println("onDragDone");
                 DragDropButton BTN = new DragDropButton();
                 BTN.MoveButton(SetValue, Stack, Constructor);
-
 
 
                 event.consume();
@@ -297,22 +348,21 @@ public class Controller2 {
 
 //_________________________________/ CIRCULOS /__________________________
 
-    class Anchor extends Circle {
+    public class Anchor extends Circle {
 
 
         private Compuerta micompuerta;
 
-        public void setMicompuerta(Compuerta compuerta)
-        {
+        public void setMicompuerta(Compuerta compuerta) {
             micompuerta = compuerta;
         }
 
         //_________________________________/ INICIO Y FINAL DE LAS CONEXIONES /__________________________
 
 
-        Anchor(Color color, DoubleProperty x, DoubleProperty y, Compuerta toAdd, String identifier) {
+        Anchor(Color color, DoubleProperty x, DoubleProperty y, Compuerta toAdd, String identifier, String OutID) {
 
-            super(x.get(), y.get(), 10);
+            super(x.get(), y.get(), 5);
             setFill(color.deriveColor(1, 1, 1, 0.5));
             setStroke(color);
             setStrokeWidth(2);
@@ -323,9 +373,9 @@ public class Controller2 {
 
             x.bind(centerXProperty());
             y.bind(centerYProperty());
-            if (color == Color.PALEGREEN){
+            if (color == Color.PALEGREEN) {
 
-            }else {
+            } else {
                 enableDrag(toAdd);
             }
         }
@@ -334,8 +384,10 @@ public class Controller2 {
 
         private void enableDrag(Compuerta toAdd) {
             final Controller2.Anchor.Delta dragDelta = new Controller2.Anchor.Delta();
+
             setOnMousePressed(new EventHandler<MouseEvent>() {
-                @Override public void handle(MouseEvent mouseEvent) {
+                @Override
+                public void handle(MouseEvent mouseEvent) {
 
 
                     dragDelta.x = getCenterX() - mouseEvent.getX();
@@ -343,30 +395,18 @@ public class Controller2 {
                     getScene().setCursor(Cursor.MOVE);
                 }
             });
+
             setOnMouseReleased(new EventHandler<MouseEvent>() {
-                @Override public void handle(MouseEvent mouseEvent) {
+                @Override
+                public void handle(MouseEvent mouseEvent) {
                     getScene().setCursor(Cursor.HAND);
-                    System.out.println("connected");
-
-
-                    if (mouseEvent.getPickResult().getIntersectedNode() instanceof Controller2.Anchor ){
-
-                        //toAdd.setCirculo((Anchor) mouseEvent.getPickResult().getIntersectedNode());
-
-                        String CompLabel =(mouseEvent.getPickResult().getIntersectedNode()).getId();
-                        System.out.println(CompLabel);
-
-
-                        if (CompLabel.equals("AND")){
-                            System.out.println("se conecta a un AND");
-                        }
-
-
-                    }
                 }
             });
+
+
             setOnMouseDragged(new EventHandler<MouseEvent>() {
-                @Override public void handle(MouseEvent mouseEvent) {
+                @Override
+                public void handle(MouseEvent mouseEvent) {
                     double newX = mouseEvent.getX() + dragDelta.x;
                     if (newX > 0 && newX < getScene().getWidth()) {
                         setCenterX(newX);
@@ -378,26 +418,130 @@ public class Controller2 {
                 }
             });
             setOnMouseEntered(new EventHandler<MouseEvent>() {
-                @Override public void handle(MouseEvent mouseEvent) {
+                @Override
+                public void handle(MouseEvent mouseEvent) {
                     if (!mouseEvent.isPrimaryButtonDown()) {
                         getScene().setCursor(Cursor.HAND);
                     }
                 }
             });
             setOnMouseExited(new EventHandler<MouseEvent>() {
-                @Override public void handle(MouseEvent mouseEvent) {
+                @Override
+                public void handle(MouseEvent mouseEvent) {
+
                     if (!mouseEvent.isPrimaryButtonDown()) {
                         getScene().setCursor(Cursor.DEFAULT);
+
+
                     }
+                    System.out.println("VALOR "+ VALOR);
+                    sendOp(mouseEvent.getPickResult().getIntersectedNode(), VALOR, mouseEvent.getSource());
                 }
             });
         }
 
-        private class Delta { double x, y; }
+        private class Delta {
+            double x, y;
+        }
+
+        //_________________________________/ SELECCIONAR OPERACION /__________________________
+
+        public void sendOp(Node IntersectedNode, int VALOR, Object source) {
+
+            if (IntersectedNode instanceof Controller2.Anchor) {
+                System.out.println("COMPUERTA CON COMPUERTA");
+
+
+                Node CompLabel = (IntersectedNode);
+                System.out.println(CompLabel.getId());
+
+                if (CompLabel == null) {
+                    System.out.println("no hay conexion");
+
+                }
+
+
+                if (CompLabel.getId().equals("AND")) {
+                    System.out.println("se conecta a un AND");
+
+                    ListaAND.addLast(VALOR);
+                    //System.out.println("ADD");
+                    if (ListaAND.size() == 2) {
+                        System.out.println("entradas" + ListaAND.getIn1() + ListaAND.getIn2());
+                        OpAND a = new OpAND();
+                        a.operar(ListaAND.getIn1(), ListaAND.getIn2());
+                        setUserData(VALOR);
+                        ListaAND = null;
+                    }
+                } else if (CompLabel.getId().equals("OR")) {
+                    System.out.println("se conecta a un OR");
+
+                    ListaOR.addLast(VALOR);
+                    if (ListaOR.size() == 2) {
+                        System.out.println("entradas" + ListaOR.getIn1() + ListaOR.getIn2());
+                        OpOR a = new OpOR();
+                        a.operar(ListaOR.getIn1(), ListaOR.getIn2());
+                        ListaOR = null;
+                    }
+                } else if (CompLabel.getId().equals("NOT")) {
+                    System.out.println("se conecta a un NOT");
+
+                    System.out.println("entrada" + VALOR);
+                    OpNOT a = new OpNOT();
+                    a.operar(VALOR);
+
+                } else if (CompLabel.getId().equals("NAND")) {
+                    System.out.println("se conecta a un NAND");
+
+                    ListaNAND.addLast(VALOR);
+                    if (ListaNAND.size() == 2) {
+                        System.out.println("entradas" + ListaNAND.getIn1() + ListaNAND.getIn2());
+                        OpNAND a = new OpNAND();
+                        a.operar(ListaNAND.getIn1(), ListaNAND.getIn2());
+                        ListaNAND = null;
+                    }
+                } else if (CompLabel.getId().equals("NOR")) {
+                    System.out.println("se conecta a un NOR");
+
+                    ListaNOR.addLast(VALOR);
+                    if (ListaNOR.size() == 2) {
+                        System.out.println("entradas" + ListaNOR.getIn1() + ListaNOR.getIn2());
+                        OpNOR a = new OpNOR();
+                        a.operar(ListaNOR.getIn1(), ListaNOR.getIn2());
+                        ListaNOR = null;
+                    }
+                } else if (CompLabel.getId().equals("XOR")) {
+                    System.out.println("se conecta a un XOR");
+
+                    ListaXOR.addLast(VALOR);
+                    if (ListaXOR.size() == 2) {
+                        System.out.println("entradas" + ListaXOR.getIn1() + ListaXOR.getIn2());
+                        OpXOR a = new OpXOR();
+                        a.operar(ListaXOR.getIn1(), ListaXOR.getIn2());
+                        ListaXOR = null;
+                    }
+                } else if (CompLabel.getId().equals("XNOR")) {
+                    System.out.println("se conecta a un XNOR");
+
+                    ListaXNOR.addLast(VALOR);
+                    if (ListaXNOR.size() == 2) {
+                        System.out.println("entradas" + ListaXNOR.getIn1() + ListaXNOR.getIn2());
+                        OpXNOR a = new OpXNOR();
+                        a.operar(ListaXNOR.getIn1(), ListaXNOR.getIn2());
+                        ListaXNOR = null;
+
+                    }
+                }
+            }
+
+
+        }
+
+
     }
-
-
 }
+
+
 
 
 
