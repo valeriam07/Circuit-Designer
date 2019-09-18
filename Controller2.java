@@ -261,10 +261,10 @@ public class Controller2 {
 
 
                     Controller2.Anchor start_IN1 = new Controller2.Anchor(Color.PALEGREEN, startX, startY, toAdd, COMP.getId(), null);
-                    Controller2.Anchor end_IN1 = new Controller2.Anchor(Color.TOMATO, endX, endY, toAdd, COMP.getId(),null);
+                    //Controller2.Anchor end_IN1 = new Controller2.Anchor(Color.TOMATO, endX, endY, toAdd, COMP.getId(),null);
 
                     Controller2.Anchor start_IN2 = new Controller2.Anchor(Color.PALEGREEN, startX_2, startY_2, toAdd, COMP.getId(),null);
-                    Controller2.Anchor end_IN2 = new Controller2.Anchor(Color.TOMATO, endX_2, endY_2, toAdd, COMP.getId(),null);
+                    //Controller2.Anchor end_IN2 = new Controller2.Anchor(Color.TOMATO, endX_2, endY_2, toAdd, COMP.getId(),null);
 
                     Controller2.Anchor start_OUT = new Controller2.Anchor(Color.PALEGREEN, startX_OUT, startY_OUT, toAdd, COMP.getId(), null);
                     Controller2.Anchor end_OUT = new Controller2.Anchor(Color.TOMATO, endX_OUT, endY_OUT, toAdd, COMP.getId(), "OUT");
@@ -278,19 +278,16 @@ public class Controller2 {
 
 
                     Constructor.getChildren().add(start_IN1);
-                    Constructor.getChildren().add(end_IN1);
 
                     Constructor.getChildren().add(start_IN2);
-                    Constructor.getChildren().add(end_IN2);
 
                     Constructor.getChildren().add(start_OUT);
                     Constructor.getChildren().add(end_OUT);
 
-                    end_OUT.setId("OUT");
 
                     Line line = new Controller2.BoundLine(startX, startY, endX, endY, toAdd);
                     Line line2 = new Controller2.BoundLine(startX_2, startY_2, endX_2, endY_2, toAdd);
-                    Line lineOUT = new Controller2.BoundLine(startX_OUT, startY_OUT, endX_OUT, endY_2, toAdd);
+                    Line lineOUT = new Controller2.BoundLine(startX_OUT, startY_OUT, endX_OUT, endY_OUT, toAdd);
 
                     //start.toFront();            //Mover al frente la linea
                     //end.toFront();
@@ -369,7 +366,7 @@ public class Controller2 {
             setStrokeType(StrokeType.OUTSIDE);
 
             setId(identifier);
-            System.out.println("TO ADD " + identifier);
+            //System.out.println("TO ADD " + identifier);
 
             x.bind(centerXProperty());
             y.bind(centerYProperty());
@@ -434,7 +431,7 @@ public class Controller2 {
 
 
                     }
-                    System.out.println("VALOR "+ VALOR);
+                    //System.out.println("VALOR "+ VALOR);
                     sendOp(mouseEvent.getPickResult().getIntersectedNode(), VALOR, mouseEvent.getSource());
                 }
             });
@@ -463,6 +460,7 @@ public class Controller2 {
 
                 if (CompLabel.getId().equals("AND")) {
                     System.out.println("se conecta a un AND");
+                    System.out.println(ListaAND);
 
                     ListaAND.addLast(VALOR);
                     //System.out.println("ADD");
