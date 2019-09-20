@@ -1,75 +1,110 @@
-package sample2;
+package TablaVerdad;
 
 import javafx.beans.property.SimpleIntegerProperty;
+import javafx.beans.property.SimpleStringProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
-import javafx.fxml.FXMLLoader;
-import javafx.geometry.Insets;
+import javafx.geometry.Pos;
 import javafx.scene.Group;
-import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.Label;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
 import javafx.scene.control.cell.PropertyValueFactory;
-import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.VBox;
 import javafx.scene.paint.Paint;
 import javafx.scene.text.Font;
+import javafx.scene.text.FontPosture;
+import javafx.scene.text.FontWeight;
+import javafx.scene.text.TextAlignment;
 import javafx.stage.Stage;
 import sample2.ListasEnlazadas.Lista;
 
 import java.io.IOException;
 
+/**
+ * Crea la tabla de verdad del circuito realizado por el usuario.
+ */
+
 public class TablaVerdad {
 
 
-    TableView<Dato> TablaVerdad  = new TableView();
+    TableView<Dato> TablaVerdad  = new TableView<Dato>();
 
     static Lista inList = new Lista();
 
-    int VALOR;
-
     VBox tableBase = new VBox();
 
-    static ObservableList<Dato> a = FXCollections.observableArrayList(
+    String in;
 
+    String out;
 
+    static ObservableList<Dato> row = FXCollections.observableArrayList(
     );
 
-    public void addIN(int valor){
-        //System.out.println("TABLA DE VERDAD");
-        VALOR = valor;
-        inList.addLast(valor);
-        a.add(new Dato(valor));
+    /**
+     *
+     * @param valor
+     * Ingresa el valor a una lista enlazada.
+     */
+    public void addIN(int valor, String inCount){
+        String sValor = null;
+
+        if(valor == 0){
+            sValor = "0";
+        }else if(valor == 1){
+            sValor = "1";
+        }
+        if(inCount.equals("final")){
+            inList.addLast(valor);
+            row.add(new Dato("-", sValor));
+        }else{
+            inList.addLast(valor);
+            row.add(new Dato(sValor, "-"));
+
+        }
     }
+
+    /**
+     *
+     * @throws IOException
+     * Crea la ventana donde se ubican la tabla de verdad.
+     * Asigna todas las caracteristicas a la tabla.
+     */
 
     public void CreateTable() throws IOException {
 
         Scene scene = new Scene(new Group());
         Stage primaryStage = new Stage();
-        primaryStage.setWidth(600);
+        primaryStage.setWidth(450);
         primaryStage.setTitle("Tabla de Verdad");
         primaryStage.setHeight(600);
+        //TablaVerdad.setStyle("-fx-background-color: #23BAC4");
+
 
         TablaVerdad.setEditable(true);
 
-        TableColumn firstCol =new TableColumn("ENTRADAS");
-        firstCol.setCellValueFactory(
-                new PropertyValueFactory<Dato, Integer>("VALOR")
+        TableColumn InCol =new TableColumn("ENTRADAS");
+        TableColumn OutCol = new TableColumn("SALIDA");
+        InCol.setCellValueFactory(
+                new PropertyValueFactory<Dato, Integer>("In")
+        );
+        OutCol.setCellValueFactory(
+                new PropertyValueFactory<Dato, Integer>("Out")
         );
 
 
+
         Label title = new Label("Tabla de Verdad");
-        title.setFont(new Font("Bold Italic", 21));
+        tableBase.setAlignment(Pos.CENTER);
+        title.setFont(Font.font("Verdana", FontWeight.BOLD, FontPosture.ITALIC, 30));
         title.setTextFill(Paint.valueOf("#00eeff"));
 
-        //tableBase.setPadding(new Insets(10, 0, 0, 10));
 
-        TablaVerdad.setItems(a);
-        TablaVerdad.getColumns().addAll(firstCol);
+        TablaVerdad.setItems(row);
+        TablaVerdad.getColumns().addAll(InCol, OutCol);
         tableBase.getChildren().addAll(title, TablaVerdad);
-
+        tableBase.relocate(87,60);
 
         ((Group) scene.getRoot()).getChildren().addAll(tableBase);
 
@@ -79,14 +114,29 @@ public class TablaVerdad {
 
     }
 
-    public static class Dato {
-        private final SimpleIntegerProperty VALOR;
+    /**
+     * Instancia una cifra como una propiedad para ser agregada en una fila de la tabla
+     */
 
-        public Dato(int In) {
-            this.VALOR = new SimpleIntegerProperty(In);
+    public static class Dato {
+        private final SimpleStringProperty in;
+        private final SimpleStringProperty out;
+
+        /**
+         *  @param In
+         * @param
+         */
+
+        public Dato(String In, String Out) {
+            this.in = new SimpleStringProperty(In);
+            this.out = new SimpleStringProperty(Out);
         }
-        public int getVALOR(){
-            return VALOR.get();
+
+        public String getIn(){
+            return in.get();
+        }
+        public String getOut(){
+            return out.get();
         }
     }
 
