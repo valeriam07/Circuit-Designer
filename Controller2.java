@@ -1,66 +1,51 @@
 package sample2;
 
-import TablaVerdad.TablaVerdad;
-
 import javafx.beans.property.DoubleProperty;
-
 import javafx.beans.property.SimpleDoubleProperty;
-
 import javafx.event.ActionEvent;
-
 import javafx.event.EventHandler;
-
 import javafx.fxml.FXML;
-
 import javafx.scene.Cursor;
-
 import javafx.scene.Node;
-
 import javafx.scene.control.Button;
-
 import javafx.scene.control.Label;
-
 import javafx.scene.image.Image;
-
 import javafx.scene.image.ImageView;
-
 import javafx.scene.input.*;
-
 import javafx.scene.layout.AnchorPane;
-
 import javafx.scene.layout.Pane;
-
 import javafx.scene.layout.StackPane;
-
 import javafx.scene.layout.VBox;
-
 import javafx.scene.paint.Color;
-
 import javafx.scene.shape.Circle;
-
 import javafx.scene.shape.Line;
-
 import javafx.scene.shape.StrokeLineCap;
-
 import javafx.scene.shape.StrokeType;
-
 import sample2.ListasEnlazadas.Lista;
-
 import sample2.Logica.*;
+import sample2.TablaVerdad.TablaVerdad;
 
 import java.io.IOException;
+import java.util.Random;
 
+/**
+ * @author Valeria Morales Alvarado
+ */
 
-import java.awt.*;
-import java.io.IOException;
-
+/**
+ * Esta clase se es la encaragada de ejecutar las funciones relacionadas con la pagina principal,
+ * el archivo de la misma, de nombre App.fxml, esta desarrollada en JavaFx. En esta se encuentran
+ * los elementos principales del Circuit Designer como la paleta de compuertas, en la cual se
+ * encuentran las diferentes operaciones que pueden ser utilizadas para un circuito; el pane
+ * constructor, sobre el cual se dibuja el circuito; botón para simular o resolver el circuito; entre otros.
+ */
 public class Controller2 {
 
     /**
-     * Clase Controller para el archivo fxml, ejecuta las funciones relacionadas con la interfaz del programa.
+     * Guarda valores temporalmente para realizar operaciones basicas y guardar datos en listas.
      */
-
         public static int VALOR;
+
         @FXML
         VBox palette;
         @FXML
@@ -74,12 +59,13 @@ public class Controller2 {
 
         Label currentComp = null;
 
-        Lista ListaAND = new Lista();      //se crea una nueva lista para los valores de entrada
+        static Lista ListaAND = new Lista();      //se crea una nueva lista para los valores de entrada
         Lista ListaOR = new Lista();
         Lista ListaNOR = new Lista();
         Lista ListaXOR = new Lista();
         Lista ListaNAND = new Lista();
         Lista ListaXNOR = new Lista();
+
         static Lista ListaRes = new Lista();
 
 
@@ -105,9 +91,10 @@ public class Controller2 {
 
         /**
          *
-         * @param event ejectuta las funciones del boton al ser presionado
-         * @throws IOException
-         * @see TablaVerdad crea la Tabla de Verdad para el circuito
+         * @param event Representa la accion de presionar el boton Simulate
+         * @throws IOException Objeto IOException para evitar errores del mismo tipo
+         * @see TablaVerdad Cabe destacar que esta funcion llama a la clase que genera la tabla
+         * de verdad para la operacion general.
          */
 
         public void boton(ActionEvent event) throws IOException {
@@ -121,16 +108,16 @@ public class Controller2 {
 //_________________________________/ ADD IMAGES & LABELS /__________________________
 
         /**
-         * @see ImageView coloca las imagenes de las compuertas a los labels
-         * @see Button asigna caracteristicas al boton SetValue
+         * Esta funcion se encarga de posicionar las imagenes de las compuertas a los labels
+         * correspondientes. Ademas realiza el .setId de los labels para que sean mas facilmente reconocibles
+         * a la hora de seleccionar la operacion.
          */
 
         public void addImage() {
 
             palette.getChildren().add(SetValue);
-            SetValue.setText("Entry");
-            //SetValue.setStyle("-fx-text-fill: #ECECEC");
-            SetValue.setStyle("-fx-background-color: #23BAC4");
+            SetValue.setText("Add Entry");
+            SetValue.setStyle("-fx-background-color: #49D3CC");
 
 
             AND.setGraphic(new ImageView(LIand));  //LI = Label Image
@@ -178,9 +165,11 @@ public class Controller2 {
 //_________________________________/ SELECT COMPUERTA PARA DRAG AND DROP /__________________________
 
         /**
+         *Selecciona la compuerta a la que se le realizara Drag and Drop para evitar errores a la hora de que se
+         *genere una nueva imagen sobre el constructor de circuitos.
          *
-         * @param COMP
-         * Selecciona la compuerta a la que se le realizara drag.
+         * @param COMP Representa el label de la compuerta con la que se esta trabajando.
+         *
          */
 
         public void SelectComp(Label COMP) {
@@ -221,9 +210,14 @@ public class Controller2 {
 
         /**
          *
-         * @param COMP
-         * @param IMG
-         * Aplica la funcion Drag and Drop para la compuerta seleccionada.
+         *Otorga la posibilidad de moverse y reposicionarse a los labels de las compuertas, así como generar un nuevo
+         * label cada vez que se realiza el movimiento de una imagen
+         *
+         * @param COMP Compuerta a la que se le realiza el movimiento para reproducir la imagen y sus propiedades para
+         * poder realizar las respectivas conexiones.
+         * @param IMG Imagen de la compuerta seleccionada, sirve para reestablecer la imagen en la paleta de compuertas
+         * y para agregarla donde el usuario desee.
+         *
          */
 
         public void DragDrop(Label COMP, Image IMG) {
@@ -326,12 +320,12 @@ public class Controller2 {
                             DoubleProperty endX_OUT = new SimpleDoubleProperty(event.getX() + 100);
                             DoubleProperty endY_OUT = new SimpleDoubleProperty(event.getY() + 25);
 
-                            Controller2.Anchor start_IN1 = new Controller2.Anchor(Color.PALEGREEN, startX, startY, toAdd, COMP.getId(), null);
+                            Controller2.Anchor start_IN1 = new Controller2.Anchor(Color.GRAY, startX, startY, toAdd, COMP.getId(), null);
 
-                            Controller2.Anchor start_IN2 = new Controller2.Anchor(Color.PALEGREEN, startX_2, startY_2, toAdd, COMP.getId(), null);
+                            Controller2.Anchor start_IN2 = new Controller2.Anchor(Color.GRAY, startX_2, startY_2, toAdd, COMP.getId(), null);
 
-                            Controller2.Anchor start_OUT = new Controller2.Anchor(Color.PALEGREEN, startX_OUT, startY_OUT, toAdd, COMP.getId(), null);
-                            Controller2.Anchor end_OUT = new Controller2.Anchor(Color.TOMATO, endX_OUT, endY_OUT, toAdd, COMP.getId(), "OUT");
+                            Controller2.Anchor start_OUT = new Controller2.Anchor(Color.GRAY, startX_OUT, startY_OUT, toAdd, COMP.getId(), null);
+                            Controller2.Anchor end_OUT = new Controller2.Anchor(Color.TURQUOISE, endX_OUT, endY_OUT, toAdd, COMP.getId(), "OUT");
 
 
                             Constructor.getChildren().add(start_IN1);
@@ -384,16 +378,35 @@ public class Controller2 {
 
 //_________________________________/ LINEA DE CONEXION /__________________________
 
-        class BoundLine extends Line {
+    /**
+     * Su funcion es crear las funciones relacionadas con la conexión de nodos, compuertas y relación de datos para operar.
+     */
+    class BoundLine extends Line {
+        /**
+         * Define las caracteristicas de la linea que realiza la conexion de las compuertas . Ademas hace set de los valores de inicio y final de la línea,
+         * los cuales se conectan a un círculo respectivo.
+         * @param startX es el valor inicial de la linea en el eje X.
+         * @param startY es el valor inicial de la linea en el eje Y.
+         * @param endX es el valor final de la linea en el eje X.
+         * @param endY es el valor final de la linea en el eje Y.
+         * @param toAdd Es la compuerta agregada al espacio de trabajo, la linea se posiciona originalente sobre este label.
+         */
             BoundLine(DoubleProperty startX, DoubleProperty startY, DoubleProperty endX, DoubleProperty endY, Compuerta toAdd) {
+                Random a = new Random();
+                Random b = new Random();
+                Random c = new Random();
                 startXProperty().bind(startX);
                 startYProperty().bind(startY);
                 endXProperty().bind(endX);
                 endYProperty().bind(endY);
                 setStrokeWidth(2);
-                setStroke(Color.GRAY.deriveColor(0, 1, 1, 0.5));
+                int A = a.nextInt(255)+1;
+                int B = b.nextInt(255)+1;
+                int C = c.nextInt(255)+1;
+
+                //setStroke(Color.rgb(A,B,C));
+                setStroke(Color.BLACK);
                 setStrokeLineCap(StrokeLineCap.BUTT);
-                getStrokeDashArray().setAll(10.0, 5.0);
                 setMouseTransparent(true);
 
             }
@@ -403,12 +416,20 @@ public class Controller2 {
 
 //_________________________________/ CIRCULOS /__________________________
 
-        public class Anchor extends Circle {
+    /**
+     * Esta clase crea la linea que conecta los circulos creados en la clase BoundLine, esto para conectar nodos y entradas.
+     * Graficamente enlaza una salida con el final de la linea el cual se conecta a una nueva entrada.
+     */
+    public class Anchor extends Circle {
 
 
             private Compuerta micompuerta;
 
-            public void setMicompuerta(Compuerta compuerta) {
+        /**
+         * Define el valor de la compuerta creada.
+         * @param compuerta Representa la compuerta creada.
+         */
+        public void setMicompuerta(Compuerta compuerta) {
 
                 micompuerta = compuerta;
             }
@@ -429,7 +450,7 @@ public class Controller2 {
 
                 x.bind(centerXProperty());
                 y.bind(centerYProperty());
-                if (color == Color.PALEGREEN) {
+                if (color == Color.GRAY) {
 
                 } else {
                     enableDrag(toAdd);
@@ -456,6 +477,7 @@ public class Controller2 {
                     @Override
                     public void handle(MouseEvent mouseEvent) {
                         getScene().setCursor(Cursor.HAND);
+                        sendOp(mouseEvent.getPickResult().getIntersectedNode(), VALOR, getId());
                     }
                 });
 
@@ -490,10 +512,8 @@ public class Controller2 {
 
 
                         }
-                        //System.out.println("VALOR "+ VALOR);
-                        System.out.println("THIS ID: " +getId());
-                        sendOp(mouseEvent.getPickResult().getIntersectedNode(), VALOR, getId());
-                    }
+
+                }
                 });
             }
 
@@ -503,6 +523,16 @@ public class Controller2 {
 
             //_________________________________/ SELECCIONAR OPERACION /__________________________
 
+
+        /**
+         * En caso de que el circulo final de una linea sea conectado a un circulo de entrada de una compuerta, obtiene el ID
+         * del nodo intersectado para agregar el valor a una lista de la compuerta respectiva. Una vez la lista contiene dos elementos,
+         * esta envia a operar los valores de la lista, guarda el resultado en una variable y vacía la lista para las nuevas operaciones
+         * del mismo tipo.
+         * @param IntersectedNode Nodo intersectado por el circulo final de la linea, contiene la conexion a una entrada.
+         * @param VALOR Es el numero que se ingresa a la lista por cada iteracion.
+         * @param thisId es el identificador de la compuerta de donde sale la conexion, esto es util para conexiones entre compuertas
+         */
             public void sendOp(Node IntersectedNode, int VALOR, String thisId) {
 
                 if (IntersectedNode instanceof Controller2.Anchor) {
@@ -520,20 +550,15 @@ public class Controller2 {
 
 
                     else if (CompLabel.getId().equals("AND")) {
-                        System.out.println("se conecta a un AND");
-                        System.out.println(ListaAND);
 
-                        ListaAND.addLast(VALOR);
-                        //System.out.println("ADD");
+                        ListaAND.addLast(ListaRes.obtenerValor(0));
+                        ListaRes.deleteValor(0);
                         if (ListaAND.size() == 2) {
-                            System.out.println("entradas" + ListaAND.getIn1() + ListaAND.getIn2());
                             OpAND a = new OpAND();
-                            a.in1 = ListaAND.getIn1();
-                            a.in2 = ListaAND.getIn2();
-                            a.operar();
+                            a.operar(ListaAND.getIn1(), ListaAND.getIn2());
                             ListaRes.addLast(a.res);
+                            ListaAND = new Lista();
 
-                            ListaAND = null;
                         }
                     } else if (CompLabel.getId().equals("OR")) {
                         System.out.println("se conecta a un OR");
