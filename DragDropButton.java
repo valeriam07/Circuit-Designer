@@ -17,16 +17,29 @@ import javafx.scene.shape.StrokeLineCap;
 import javafx.scene.shape.StrokeType;
 import sample2.ListasEnlazadas.Lista;
 import sample2.Logica.*;
+import sample2.TablaVerdad.TablaVerdad;
+
+import java.util.Random;
+
+/**
+ * Esta clase se encarga de las mismas funciones de la clase Controller, sin embargo su funcionamiento
+ * es a partir de botones. El propósito de esta clase es generar botones cuyo valor cambie entre 0 y 1 según
+ * el usuario lo desee, esto para las entradas de los valores iniciales del circuito. Debido a que las
+ * características del botón y algunas de las funciones que debe desempeñar son diferentes a las de las compuertas,
+ * las cuales era Labels, se opto por crear esta nueva clase.
+ */
 
 public class DragDropButton extends Controller2 {
-         //se crea una nueva lista para los valores de entrada
-    Lista ListaAND = new Lista();
-    Lista ListaOR = new Lista();
-    Lista ListaNOR = new Lista();
-    Lista ListaXOR = new Lista();
-    Lista ListaNAND = new Lista();
-    Lista ListaXNOR = new Lista();
 
+    /**
+     *Ejecuta el movimiento y reposicionamiento del boton y asigna el valor del mismo segun el usuario
+     * presiona elemnto agregado. Asigna los valores iniciales del circuito.
+     *
+     * @param SetValue Boton para inicializar un valor en el circuito
+     * @param Stack StackPane sobre el que se realiza Drag al boton para obtener una nueva posicion
+     * @param Constructor Pane donde se realiza el Drop del boton, permite las primeras conexiones con las compuertas
+     *
+     */
 
     public void MoveButton(Button SetValue, StackPane Stack, Pane Constructor) {
         SetValue.setOnDragDetected(new EventHandler<MouseEvent>() {
@@ -103,10 +116,8 @@ public class DragDropButton extends Controller2 {
 
                             if (toAdd.getText().equals("0")) {
                                 toAdd.setText("1");
-                                VALOR = 1;
                             } else if (toAdd.getText().equals("1")) {
                                 toAdd.setText("0");
-                                VALOR = 0;
                             }
 
                         }
@@ -114,11 +125,8 @@ public class DragDropButton extends Controller2 {
 
 
 
-                    DragDropButton.Anchor start = new DragDropButton.Anchor(Color.PALEGREEN, startX, startY, toAdd);
-                    DragDropButton.Anchor end = new DragDropButton.Anchor(Color.TOMATO, endX, endY, toAdd);
-
-                    //start.setId(SetValue.getId());
-                    //end.setId(SetValue.getId());
+                    DragDropButton.Anchor start = new DragDropButton.Anchor(Color.GRAY, startX, startY, toAdd);
+                    DragDropButton.Anchor end = new DragDropButton.Anchor(Color.TURQUOISE, endX, endY, toAdd);
 
 
                     Constructor.getChildren().add(start);
@@ -155,16 +163,35 @@ public class DragDropButton extends Controller2 {
 
     //_________________________________/ LINEA DE CONEXION /__________________________
 
+    /**
+     * BoundLine genera la linea de conexion para las salidas de las compuertas.
+     */
+
     class BoundLine extends Line {
+
+        /**
+         *
+         * @param startX
+         * @param startY
+         * @param endX
+         * @param endY
+         * @see Line
+         */
         BoundLine(DoubleProperty startX, DoubleProperty startY, DoubleProperty endX, DoubleProperty endY, Button toAdd) {
+            Random a = new Random();
+            Random b = new Random();
+            Random c = new Random();
             startXProperty().bind(startX);
             startYProperty().bind(startY);
             endXProperty().bind(endX);
             endYProperty().bind(endY);
             setStrokeWidth(2);
-            setStroke(Color.GRAY.deriveColor(0, 1, 1, 0.5));
+            int A = a.nextInt(255)+1;
+            int B = b.nextInt(255)+1;
+            int C = c.nextInt(255)+1;
+
+            setStroke(Color.rgb(A,B,C));
             setStrokeLineCap(StrokeLineCap.BUTT);
-            getStrokeDashArray().setAll(10.0, 5.0);
             setMouseTransparent(true);
 
         }
@@ -174,10 +201,23 @@ public class DragDropButton extends Controller2 {
 
 //_________________________________/ CIRCULOS /__________________________
 
+    /**
+     * Crea los circulos que representan las entradas y salidas que extienden las conexiones.
+     */
+
     class Anchor extends Circle {
 
         //_________________________________/ INICIO Y FINAL DE LAS CONEXIONES /__________________________
 
+        /**
+         *
+         * @param color color del circulo nuevo
+         * @param x posicion en x
+         * @param y posicion en y
+         * @param toAdd compuerta agregada
+         * @see Circle circulos de entrda y salida
+         *
+         */
 
         Anchor(Color color, DoubleProperty x, DoubleProperty y, Button toAdd) {
 
@@ -198,6 +238,13 @@ public class DragDropButton extends Controller2 {
 
         //_________________________________/ DRAG AND DROP PARA EXTENDER LINEAS /__________________________
 
+        /**
+         * Realiza el Drag and Drop de las botones.
+         *
+         * @param toAdd Es el nuevo dato inicial agregado por el susuario.
+
+         */
+
         private void enableDrag(Button toAdd) {
             final DragDropButton.Anchor.Delta dragDelta = new DragDropButton.Anchor.Delta();
             setOnMousePressed(new EventHandler<MouseEvent>() {
@@ -214,7 +261,6 @@ public class DragDropButton extends Controller2 {
                 @Override
                 public void handle(MouseEvent mouseEvent) {
                     getScene().setCursor(Cursor.HAND);
-                    sendIN(toAdd.getText());
 
 
 
@@ -251,8 +297,8 @@ public class DragDropButton extends Controller2 {
                         getScene().setCursor(Cursor.DEFAULT);
 
                     }
-                    System.out.println(VALOR);
-                    sendOp(mouseEvent.getPickResult().getIntersectedNode(), VALOR, toAdd);
+                    sendIN(toAdd.getText());
+                    sendOp(mouseEvent.getPickResult().getIntersectedNode(), toAdd);
 
 
 
@@ -267,6 +313,9 @@ public class DragDropButton extends Controller2 {
 
         }
 
+        /**
+         * Instancia los valores de las coordenadas x y y
+         */
 
         private class Delta {
             double x, y;
@@ -274,90 +323,101 @@ public class DragDropButton extends Controller2 {
 
 //_________________________________/ SELECCIONAR OPERACION /__________________________
 
-        public void sendOp(Node IntersectedNode, int VALOR, Button toAdd) {
+        /**
+         *
+         * @param IntersectedNode
+         * @param toAdd
+         * Envia a operar dos valores una vez se conectan a la misma compuerta.
+         */
 
-
+        public void sendOp(Node IntersectedNode, Button toAdd) {
+            //String txt;
+            if (toAdd.getText().equals("1")) {
+                VALOR = 1;
+            } else {
+                VALOR = 0;
+            }
             if (IntersectedNode instanceof Controller2.Anchor) {
-                toAdd.setDisable(true);
-
-
+                System.out.println("entra");
                 Node CompLabel = (IntersectedNode);
-                System.out.println(CompLabel.getId());
+                //System.out.println(CompLabel.getId());
 
-                if (CompLabel == null) {
+                if (CompLabel.getId() == null) {
                     System.out.println("no hay conexion");
+                } else {
+                    toAdd.setDisable(true);
 
-                }
+                    if (CompLabel.getId().equals("AND")) {
+                        ListaAND.addLast(VALOR);
+                        System.out.println("se conecta a un AND");
+
+                        if (ListaAND.size() == 2) {
+                            OpAND a = new OpAND();
+                            a.operar(ListaAND.getIn1(), ListaAND.getIn2());
+                            ListaRes.addLast(a.res);
+                            VALOR = a.res;
+                            ListaAND = new Lista();
 
 
-                else if (CompLabel.getId().equals("AND")) {
-                    System.out.println("se conecta a un AND");
+                        }
+                    } else if (CompLabel.getId().equals("OR")) {
+                        System.out.println("se conecta a un OR");
 
-                    ListaAND.addLast(VALOR);
-                    if (ListaAND.size() == 2) {
-                        System.out.println("entradas" + ListaAND.getIn1() + ListaAND.getIn2());
-                        OpAND a = new OpAND();
-                        Controller2.VALOR = a.operar(ListaAND.getIn1(), ListaAND.getIn2());
-                        ListaAND = null;
+                        ListaOR.addLast(VALOR);
+                        if (ListaOR.size() == 2) {
+                            System.out.println("entradas" + ListaOR.getIn1() + ListaOR.getIn2());
+                            OpOR a = new OpOR();
+                            a.operar(ListaOR.getIn1(), ListaOR.getIn2());
+                            ListaOR = null;
+                        }
+                    } else if (CompLabel.getId().equals("NOT")) {
+                        System.out.println("se conecta a un NOT");
 
-                    }
-                } else if (CompLabel.getId().equals("OR")) {
-                    System.out.println("se conecta a un OR");
+                        System.out.println("entrada" + VALOR);
+                        OpNOT a = new OpNOT();
+                        a.operar(VALOR);
 
-                    ListaOR.addLast(VALOR);
-                    if (ListaOR.size() == 2) {
-                        System.out.println("entradas" + ListaOR.getIn1() + ListaOR.getIn2());
-                        OpOR a = new OpOR();
-                        a.operar(ListaOR.getIn1(), ListaOR.getIn2());
-                        ListaOR = null;
-                    }
-                } else if (CompLabel.getId().equals("NOT")) {
-                    System.out.println("se conecta a un NOT");
+                    } else if (CompLabel.getId().equals("NAND")) {
+                        System.out.println("se conecta a un NAND");
 
-                    System.out.println("entrada" + VALOR);
-                    OpNOT a = new OpNOT();
-                    a.operar(VALOR);
+                        ListaNAND.addLast(VALOR);
+                        if (ListaNAND.size() == 2) {
+                            System.out.println("entradas" + ListaNAND.getIn1() + ListaNAND.getIn2());
+                            OpNAND a = new OpNAND();
+                            a.operar(ListaNAND.getIn1(), ListaNAND.getIn2());
+                            ListaNAND = null;
+                        }
+                    } else if (CompLabel.getId().equals("NOR")) {
+                        System.out.println("se conecta a un NOR");
 
-                } else if (CompLabel.getId().equals("NAND")) {
-                    System.out.println("se conecta a un NAND");
+                        ListaNOR.addLast(VALOR);
+                        if (ListaNOR.size() == 2) {
+                            System.out.println("entradas" + ListaNOR.getIn1() + ListaNOR.getIn2());
+                            OpNOR a = new OpNOR();
+                            a.operar(ListaNOR.getIn1(), ListaNOR.getIn2());
+                            ListaNOR = null;
+                        }
+                    } else if (CompLabel.getId().equals("XOR")) {
+                        System.out.println("se conecta a un XOR");
 
-                    ListaNAND.addLast(VALOR);
-                    if (ListaNAND.size() == 2) {
-                        System.out.println("entradas" + ListaNAND.getIn1() + ListaNAND.getIn2());
-                        OpNAND a = new OpNAND();
-                        a.operar(ListaNAND.getIn1(), ListaNAND.getIn2());
-                        ListaNAND = null;
-                    }
-                } else if (CompLabel.getId().equals("NOR")) {
-                    System.out.println("se conecta a un NOR");
+                        ListaXOR.addLast(VALOR);
+                        if (ListaXOR.size() == 2) {
+                            System.out.println("entradas" + ListaXOR.getIn1() + ListaXOR.getIn2());
+                            OpXOR a = new OpXOR();
+                            a.operar(ListaXOR.getIn1(), ListaXOR.getIn2());
+                            ListaXOR = null;
+                        }
+                    } else if (CompLabel.getId().equals("XNOR")) {
+                        System.out.println("se conecta a un XNOR");
 
-                    ListaNOR.addLast(VALOR);
-                    if (ListaNOR.size() == 2) {
-                        System.out.println("entradas" + ListaNOR.getIn1() + ListaNOR.getIn2());
-                        OpNOR a = new OpNOR();
-                        a.operar(ListaNOR.getIn1(), ListaNOR.getIn2());
-                        ListaNOR = null;
-                    }
-                } else if (CompLabel.getId().equals("XOR")) {
-                    System.out.println("se conecta a un XOR");
+                        ListaXNOR.addLast(VALOR);
+                        if (ListaXNOR.size() == 2) {
+                            System.out.println("entradas" + ListaXNOR.getIn1() + ListaXNOR.getIn2());
+                            OpXNOR a = new OpXNOR();
+                            a.operar(ListaXNOR.getIn1(), ListaXNOR.getIn2());
+                            ListaXNOR = null;
 
-                    ListaXOR.addLast(VALOR);
-                    if (ListaXOR.size() == 2) {
-                        System.out.println("entradas" + ListaXOR.getIn1() + ListaXOR.getIn2());
-                        OpXOR a = new OpXOR();
-                        a.operar(ListaXOR.getIn1(), ListaXOR.getIn2());
-                        ListaXOR = null;
-                    }
-                } else if (CompLabel.getId().equals("XNOR")) {
-                    System.out.println("se conecta a un XNOR");
-
-                    ListaXNOR.addLast(VALOR);
-                    if (ListaXNOR.size() == 2) {
-                        System.out.println("entradas" + ListaXNOR.getIn1() + ListaXNOR.getIn2());
-                        OpXNOR a = new OpXNOR();
-                        a.operar(ListaXNOR.getIn1(), ListaXNOR.getIn2());
-                        ListaXNOR = null;
-
+                        }
                     }
                 }
             }
@@ -365,17 +425,19 @@ public class DragDropButton extends Controller2 {
 
         }
 
-        public int getVALOR(){
-            return VALOR;
-        }
+        /**
+         *
+         * @param valor
+         * Envia los valores a la Tabla de Verdad para ser guardados en una lista.
+         */
 
         public void sendIN(String valor){
             TablaVerdad IN = new TablaVerdad();
 
             if(valor.equals("1")){
-                IN.addIN(1);
+                IN.addIN(1, "next");
             }else{
-                IN.addIN(0);
+                IN.addIN(0, "next");
             }
         }
     }
